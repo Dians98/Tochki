@@ -1,0 +1,412 @@
+:root {
+  /* Encres de stylo bille */
+  --encre-bleue: #1f3a9e;
+  --encre-rouge: #bf2a2f;
+  --crayon: #3b3631;
+
+  /* Papier et réglure Seyès */
+  --papier: #fbf9f1;
+  --papier-verso: #f1ede1;
+  --ligne-fine: #d3c6e4;
+  --ligne-carreau: #a892cc;
+  --marge: #e0626b;
+
+  /* Couverture */
+  --couverture: #2f6a52;
+  --couverture-ombre: #24543f;
+  --etiquette: #f6f1e3;
+  --carton: #ece4cf;
+
+  --bureau: #3d3833;
+
+  /* Taille du cahier : une page 17 × 22, la double page doit tenir à l'écran */
+  --h: min(88vh, calc(94vw * 220 / 340));
+  --w: calc(var(--h) * 170 / 220);
+
+  --ecriture: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  --imprime: 'Trebuchet MS', 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  background: var(--bureau);
+  color: var(--crayon);
+  font-family: var(--ecriture);
+  overflow: hidden;
+}
+
+/* La lampe de bureau éclaire le cahier */
+.bureau {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 42%, #5a5149 0%, var(--bureau) 70%);
+}
+
+.scene {
+  width: calc(var(--w) * 2);
+  height: var(--h);
+  display: flex;
+  justify-content: center;
+  perspective: 2600px;
+}
+
+.cahier {
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  font-size: calc(var(--h) / 34);
+  transform-style: preserve-3d;
+  transition: transform 1.2s cubic-bezier(.55, .05, .25, 1);
+}
+.cahier.ouvert { transform: translateX(50%); }
+
+/* Page de jeu */
+
+.page {
+  position: absolute;
+  inset: 0;
+  background: var(--papier);
+  border-radius: 0 3px 3px 0;
+  box-shadow:
+    1px 1px 0 #e7e2d4, 2px 2px 0 #d6d0c1, 3px 3px 0 #ebe6d8, 4px 4px 0 #d3ccbb,
+    0 14px 34px rgba(0, 0, 0, .45);
+}
+.page svg { display: block; width: 100%; height: 100%; }
+.page.jouable svg { cursor: pointer; }
+
+.ligne-fine { stroke: var(--ligne-fine); stroke-width: .1; }
+.ligne-carreau { stroke: var(--ligne-carreau); stroke-width: .18; }
+.ligne-marge { stroke: var(--marge); stroke-width: .32; }
+
+.entete text {
+  font-family: var(--ecriture);
+  font-size: 5.2px;
+  fill: var(--encre-bleue);
+  opacity: .85;
+}
+
+.point { transform-box: fill-box; transform-origin: center; transition: opacity .5s; }
+.point.pose { animation: poser 280ms cubic-bezier(.3, 1.7, .5, 1); }
+.point.prisonnier { opacity: .42; }
+@keyframes poser {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+.fantome { opacity: .28; pointer-events: none; }
+.dernier { fill: none; stroke-width: .22; opacity: .45; pointer-events: none; }
+
+.capture { transition: opacity .6s; }
+.capture.efface { opacity: 0; }
+.teinte { opacity: 0; transition: opacity .8s; }
+.teinte.visible { opacity: .1; }
+.trait { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.trait-appuye { stroke-width: .5; opacity: .9; }
+.trait-leger { stroke-width: .26; opacity: .5; }
+
+/* Résultat écrit sur la page */
+
+.resultat {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 72%;
+  padding: 1.1em 1.2em 1em;
+  transform: translate(-50%, -50%) rotate(-1.5deg);
+  background: var(--papier);
+  text-align: center;
+  animation: apparaitre .5s ease-out;
+}
+.resultat .cadre { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.resultat .cadre .trait-appuye { vector-effect: non-scaling-stroke; stroke-width: 1.8px; }
+.resultat-titre { position: relative; margin: 0; font-size: 2.1em; font-weight: 700; line-height: 1.1; }
+.resultat-detail { position: relative; margin: .2em 0 .8em; font-size: 1.35em; }
+.resultat-actions { position: relative; display: flex; gap: 1.2em; justify-content: center; flex-wrap: wrap; }
+@keyframes apparaitre { from { opacity: 0; } to { opacity: 1; } }
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.resultat-actions button,
+.abandonner {
+  background: none;
+  border: 0;
+  padding: .1em .2em;
+  font-size: 1.3em;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: .2em;
+  color: var(--crayon);
+}
+.resultat-actions button:hover,
+.abandonner:hover:not(:disabled) { color: var(--encre-bleue); }
+
+:focus-visible { outline: 2px dashed var(--encre-bleue); outline-offset: 3px; }
+
+/* Couverture */
+
+.couverture {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 1.25s cubic-bezier(.55, .05, .25, 1);
+  z-index: 2;
+}
+.cahier.ouvert .couverture { transform: rotateY(-180deg); }
+
+/* Cahier fermé : la page est cachée sous la couverture (évite deux plans 3D superposés). */
+.cahier:not(.ouvert) .page { visibility: hidden; transition: visibility 0s 1.25s; }
+
+.face {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.cahier.ouvert .avant,
+.cahier:not(.ouvert) .arriere { pointer-events: none; }
+
+.avant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 7% 9% 6% 12%;
+  background: var(--couverture);
+  border-radius: 0 4px 4px 0;
+  box-shadow: inset 8px 0 10px -6px rgba(0, 0, 0, .45), 0 14px 34px rgba(0, 0, 0, .45);
+  color: var(--crayon);
+}
+/* Reliure : la bande sombre le long du dos */
+.avant::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 5%;
+  background: var(--couverture-ombre);
+}
+
+.marque-cahier {
+  margin: 0 0 6%;
+  font-family: var(--imprime);
+  font-size: 2.6em;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--etiquette);
+}
+
+.etiquette {
+  width: 100%;
+  padding: 5% 6%;
+  background: var(--etiquette);
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px var(--etiquette), 0 0 0 4px #c8bfa5;
+}
+
+.champ {
+  margin: 0 0 .5em;
+  padding: 0 0 .15em;
+  border: 0;
+  border-bottom: 1px solid #9bb3d3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 .5em;
+  min-width: 0;
+}
+fieldset.champ { padding-top: 0; }
+fieldset.champ legend { float: left; padding: 0; margin-right: .5em; }
+
+.intitule {
+  font-family: var(--imprime);
+  font-size: .72em;
+  color: #5d6b7c;
+}
+
+.ecrit {
+  font-family: var(--ecriture);
+  font-size: 1.35em;
+  color: var(--encre-bleue);
+}
+input.ecrit {
+  flex: 1;
+  min-width: 6em;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+input.ecrit::placeholder { color: #a7a196; }
+.encre-bleue { color: var(--encre-bleue); }
+.encre-rouge { color: var(--encre-rouge); }
+
+/* Choix : on entoure la réponse au stylo, comme sur une fiche */
+.choix { position: relative; cursor: pointer; font-size: 1.25em; }
+.choix input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.choix span { position: relative; display: inline-block; padding: 0 .35em; color: var(--encre-bleue); }
+.choix span.encre-rouge { color: var(--encre-rouge); }
+.choix input:checked + span::after {
+  content: '';
+  position: absolute;
+  inset: -.05em -.1em;
+  border: 1.6px solid currentColor;
+  border-radius: 52% 46% 55% 44% / 58% 50% 46% 52%;
+  transform: rotate(-2deg);
+}
+.choix input:focus-visible + span { outline: 2px dashed var(--encre-bleue); outline-offset: 2px; }
+
+.ouvrir {
+  margin-top: auto;
+  padding: .25em 1.1em;
+  font-family: var(--ecriture);
+  font-size: 1.6em;
+  font-weight: 700;
+  color: var(--couverture-ombre);
+  background: var(--etiquette);
+  border: 0;
+  border-radius: 4px;
+  transform: rotate(-1deg);
+  box-shadow: 0 3px 0 #c8bfa5;
+  transition: transform .15s, box-shadow .15s;
+}
+.ouvrir:hover { transform: rotate(-1deg) translateY(-1px); box-shadow: 0 4px 0 #c8bfa5; }
+.ouvrir:active { transform: rotate(-1deg) translateY(2px); box-shadow: 0 1px 0 #c8bfa5; }
+
+.mention {
+  margin: 4% 0 0;
+  font-family: var(--imprime);
+  font-size: .62em;
+  letter-spacing: .04em;
+  color: #cfe0d6;
+}
+
+/* Revers de la couverture : le tableau des scores */
+
+.arriere {
+  transform: rotateY(180deg);
+  padding: 10% 10% 8%;
+  background: var(--carton);
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -10px 0 14px -8px rgba(0, 0, 0, .35);
+  display: flex;
+  flex-direction: column;
+}
+
+.tableau-titre { margin: 0 0 .6em; font-size: 1.9em; font-weight: 700; }
+
+.joueurs { list-style: none; margin: 0; padding: 0; }
+.joueurs li {
+  display: flex;
+  align-items: baseline;
+  gap: .5em;
+  padding: .25em 0;
+  font-size: 1.45em;
+  border-bottom: 1px solid #cdbf9f;
+}
+.pastille {
+  flex: none;
+  width: .42em;
+  height: .42em;
+  border-radius: 50%;
+  background: var(--encre);
+  transform: translateY(-.1em);
+}
+.nom { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score { font-size: 1.5em; font-weight: 700; min-width: 1.5em; text-align: right; }
+.joueurs li.a-le-trait .nom {
+  text-decoration: underline wavy;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: .25em;
+}
+
+.tour { margin: .9em 0 .4em; font-size: 1.35em; min-height: 1.4em; }
+
+.abandonner { align-self: flex-start; }
+.abandonner:disabled { opacity: .35; cursor: default; }
+.abandonner.confirmer { color: var(--encre-rouge); }
+
+.aide { margin-top: auto; font-size: 1.05em; line-height: 1.25; color: #6c6455; }
+
+/* Page tournée (Rejouer) */
+
+.feuille-tournee {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  animation: tourner .95s cubic-bezier(.5, .05, .3, 1) forwards;
+}
+.feuille-tournee > div {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--papier);
+}
+.feuille-tournee svg { display: block; width: 100%; height: 100%; }
+.feuille-tournee .verso { transform: rotateY(180deg); background: var(--papier-verso); }
+@keyframes tourner {
+  0% { transform: translateZ(2px) rotateY(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateZ(2px) rotateY(-180deg); opacity: 0; }
+}
+
+/* Stylo (remplace le curseur pendant la partie) */
+
+body.sans-curseur, body.sans-curseur * { cursor: none !important; }
+
+.main-stylo {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.main-stylo.visible { opacity: 1; }
+.main-stylo.visible.dehors { opacity: 0; }
+
+/* La pointe du stylo (22, 112 dans le dessin de 200) tombe sur le pointeur. */
+.main-stylo-corps {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--h) / 3);
+  height: calc(var(--h) / 3);
+  transform: translate(-11%, -56%);
+  transform-origin: 11% 56%;
+  filter: drop-shadow(4px 7px 5px rgba(30, 20, 10, .28));
+  transition: translate .25s ease-out, rotate .25s ease-out, opacity .25s;
+}
+.main-stylo-corps svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* Tour de l'ordinateur : on lève le stylo. */
+.main-stylo.attente .main-stylo-corps { translate: 8px -14px; rotate: 5deg; opacity: .6; }
+
+/* Petit coup de pointe quand on pose un point. */
+.main-stylo-corps.tape { animation: tape .18s ease-out; }
+@keyframes tape {
+  50% { translate: -1px 3px; rotate: -2deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-stylo-corps { transition: none; }
+  .main-stylo-corps.tape { animation: none; }
+  .cahier, .couverture { transition-duration: .01s; }
+  .feuille-tournee { animation-duration: .01s; }
+  .point.pose { animation: none; }
+}

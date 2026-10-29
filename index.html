@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tochki</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="bureau">
+    <div class="scene">
+      <div class="cahier" id="cahier">
+
+        <div class="page" id="page">
+          <svg id="feuille" role="img" aria-label="Page de cahier à grands carreaux : la grille de jeu"></svg>
+
+          <div class="resultat" id="resultat" hidden>
+            <svg class="cadre" id="cadre-resultat" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <p class="resultat-titre" id="resultat-titre"></p>
+            <p class="resultat-detail" id="resultat-detail"></p>
+            <div class="resultat-actions">
+              <button type="button" id="rejouer">Rejouer</button>
+              <button type="button" id="fermer">Fermer le cahier</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="couverture" id="couverture">
+          <form class="face avant" id="reglages" autocomplete="off">
+            <p class="marque-cahier">Cahier</p>
+
+            <div class="etiquette">
+              <p class="champ"><span class="intitule">Matière :</span> <span class="ecrit">Tochki</span></p>
+
+              <fieldset class="champ">
+                <legend class="intitule">Partie :</legend>
+                <label class="choix"><input type="radio" name="mode" value="deux" checked><span>à deux</span></label>
+                <label class="choix"><input type="radio" name="mode" value="ordi"><span>contre l'ordinateur</span></label>
+              </fieldset>
+
+              <div data-mode="deux">
+                <p class="champ">
+                  <label class="intitule" for="nom-bleu">Stylo bleu :</label>
+                  <input class="ecrit encre-bleue" id="nom-bleu" name="nom-bleu" maxlength="16" placeholder="Prénom">
+                </p>
+                <p class="champ">
+                  <label class="intitule" for="nom-rouge">Stylo rouge :</label>
+                  <input class="ecrit encre-rouge" id="nom-rouge" name="nom-rouge" maxlength="16" placeholder="Prénom">
+                </p>
+              </div>
+
+              <div data-mode="ordi" hidden>
+                <p class="champ">
+                  <label class="intitule" for="nom-joueur">Nom :</label>
+                  <input class="ecrit" id="nom-joueur" name="nom-joueur" maxlength="16" placeholder="Ton prénom">
+                </p>
+                <fieldset class="champ">
+                  <legend class="intitule">Mon stylo :</legend>
+                  <label class="choix"><input type="radio" name="couleur" value="bleu" checked><span class="encre-bleue">bleu, je commence</span></label>
+                  <label class="choix"><input type="radio" name="couleur" value="rouge"><span class="encre-rouge">rouge</span></label>
+                </fieldset>
+                <fieldset class="champ">
+                  <legend class="intitule">Niveau :</legend>
+                  <label class="choix"><input type="radio" name="niveau" value="facile"><span>facile</span></label>
+                  <label class="choix"><input type="radio" name="niveau" value="moyen" checked><span>moyen</span></label>
+                  <label class="choix"><input type="radio" name="niveau" value="difficile"><span>difficile</span></label>
+                </fieldset>
+              </div>
+            </div>
+
+            <button type="submit" class="ouvrir">Ouvrir le cahier</button>
+            <p class="mention">Grands carreaux · 17 × 22 cm</p>
+          </form>
+
+          <div class="face arriere" id="tableau">
+            <h2 class="tableau-titre">Partie n° <span id="num">1</span></h2>
+            <ul class="joueurs">
+              <li id="ligne-1"><span class="pastille" style="--encre: var(--encre-bleue)"></span><span class="nom" id="nom-1"></span><span class="score" id="score-1">0</span></li>
+              <li id="ligne-2"><span class="pastille" style="--encre: var(--encre-rouge)"></span><span class="nom" id="nom-2"></span><span class="score" id="score-2">0</span></li>
+            </ul>
+            <p class="tour" id="tour" aria-live="polite"></p>
+            <button type="button" class="abandonner" id="abandonner">Abandonner</button>
+            <p class="aide">Entoure les points de l'adversaire avec une chaîne fermée de tes points pour les capturer. Une boucle vide ne protège rien.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="js/regles.js"></script>
+  <script src="js/contour.js"></script>
+  <script src="js/ordi.js"></script>
+  <script src="js/rendu.js"></script>
+  <script src="js/stylo.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
